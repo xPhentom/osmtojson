@@ -600,11 +600,15 @@ osmtogeojson = function (data, options) {
         "id2_s": pois[i].id,
         "tags": pois[i].tags || {},
         "relations": relsmap["node"][pois[i].id] || [],
-        "meta": build_meta_information(pois[i]), //AANGEPAST Opgeroepen
-
+        //"meta": build_meta_information(pois[i]), //AANGEPAST Opgeroepen
+        "timestamp_dt": pois[i].timestamp,
+        "version_i": pois[i].version,
+        "changeset_i": pois[i].changeset,
+        "user_s": pois[i].user,
+        "uid_i": pois[i].uid,
 
         "type3_s": "Point",
-        "coordinates_p": [+pois[i].lon, +pois[i].lat],
+        "coordinates": [ pois[i].lon + ',' + pois[i].lat ], //bewerkt
 
       };
 
@@ -615,7 +619,7 @@ osmtogeojson = function (data, options) {
 
 
       //Deserialize array coordinates
-      var coordinatesArray = [];
+      /*var coordinatesArray = [];
       for (var prop in coords) {
         var counter = 0;
         var pushCoordinates;
@@ -635,8 +639,7 @@ osmtogeojson = function (data, options) {
       }
       delete feature["coordinates_p"];
       if (coordinatesArray.length != 0)
-        feature["coordinates_p"] = coordinatesArray;
-
+        feature["coordinates_p"] = coordinatesArray;*/
 
 
       for (var j = 0; j < feature["relations"].length; j++) {
@@ -880,7 +883,7 @@ osmtogeojson = function (data, options) {
                 return;
               }
               return _.compact(ring.map(function (node) {
-                return [+node.lon, +node.lat];
+                return node.lon + ',' + node.lat;
               }));
             }));
             if (cl.length == 0) {
@@ -914,11 +917,15 @@ osmtogeojson = function (data, options) {
             "id2_s": mp_id,
             "tags": tag_object.tags || {},
             "relations": relsmap[tag_object.type][tag_object.id] || [],
-            "meta": build_meta_information(tag_object),
-
+            //"meta": build_meta_information(tag_object),
+            "timestamp_dt": tag_object.timestamp,
+            "version_i": tag_object.version,
+            "changeset_i": tag_object.changeset,
+            "user_s": tag_object.user,
+            "uid_i": tag_object.uid,
 
             "type3_s": mp_type,
-            "coordinates_p": mp_coords,
+            "coordinates": mp_coords,
 
             /* "geometry"   : {
                "type_s" : mp_type,
@@ -933,7 +940,7 @@ osmtogeojson = function (data, options) {
 
 
           //Deserialize array coordinates
-          var coordinatesArray = [];
+          /*var coordinatesArray = [];
           for (var prop in coords) {
             var counter = 0;
             var pushCoordinates;
@@ -953,21 +960,22 @@ osmtogeojson = function (data, options) {
           }
           delete feature["coordinates_p"];
           if (coordinatesArray.length != 0)
-            feature["coordinates_p"] = coordinatesArray;
+            feature["coordinates_p"] = coordinatesArray;*/
 
 
-          for (var j = 0; j < feature["relations"].length; j++) {
-            for (var prop in feature["relations"][j]) {
-              if (prop === "reltags") {
-                for (var prop2 in feature["relations"][j]["reltags"]) {
-                  feature[prop2] = feature["relations"][j]["reltags"][prop2];
+          for (var j = 0; j < feature["relations"].length; j++){
+                  for (var prop in feature["relations"][j]){
+                    if (prop === "reltags"){
+                      for (var prop2 in feature["relations"][j]["reltags"]){
+                        feature[prop2 + "_s"] = feature["relations"][j]["reltags"][prop2] ;
+                      }
+                    }
+                    else{
+                      feature[prop + "_s"] = feature["relations"][j][prop];
+                    }   
+                  }
                 }
-              } else {
-                feature[prop] = feature["relations"][j][prop];
-              }
-            }
-          }
-          delete feature["relations"];
+                delete feature["relations"];
 
 
           if (is_tainted) {
@@ -995,7 +1003,7 @@ osmtogeojson = function (data, options) {
       var coords = new Array();
       for (j = 0; j < ways[i].nodes.length; j++) {
         if (typeof ways[i].nodes[j] == "object")
-          coords.push([+ways[i].nodes[j].lon, +ways[i].nodes[j].lat]);
+          coords.push(ways[i].nodes[j].lon + ',' + ways[i].nodes[j].lat);
         else {
           if (options.verbose) console.warn('Way', ways[i].type + '/' + ways[i].id, 'is tainted by an invalid node');
           ways[i].tainted = true;
@@ -1019,7 +1027,7 @@ osmtogeojson = function (data, options) {
         coords = [coords];
       }
 
-      for (var prop in ways[i].tags) { //Zelf toegevoegd, verandert de naam van het veld naar [naam]_s
+      for (var prop in ways[i].tags) { //elf toegevoegd, verandert de naam van het veld naar [naam]_s
         ways[i].tags[prop + "_s"] = ways[i].tags[prop];
         delete ways[i].tags[prop];
       }
@@ -1032,11 +1040,16 @@ osmtogeojson = function (data, options) {
         "id_s2": ways[i].id,
         "tags": ways[i].tags || {},
         "relations": relsmap["way"][ways[i].id] || [],
-        "meta": build_meta_information(ways[i]),
+        //"meta": build_meta_information(ways[i]),
+        "timestamp_dt": ways[i].timestamp,
+        "version_i": ways[i].version,
+        "changeset_i": ways[i].changeset,
+        "user_s": ways[i].user,
+        "uid_i": ways[i].uid,
         //"geometry_type_s": way_type
 
         "type3_s": way_type,
-        "coordinates_p": coords,
+        "coordinates": coords,
       }
 
       for (var prop in ways[i].tags) { //Zelf toegevoegd, haalt alles uit tags en zet deze dan in de main tree. 'delete feature.tags' zorgt ervoor dat de originele tags verwijdert worden. 
@@ -1046,7 +1059,7 @@ osmtogeojson = function (data, options) {
 
 
       //Deserialize array coordinates
-      var coordinatesArray = [];
+      /*var coordinatesArray = [];
       for (var prop in coords) {
         var counter = 0;
         var pushCoordinates;
@@ -1066,22 +1079,21 @@ osmtogeojson = function (data, options) {
       }
       delete feature["coordinates_p"];
       if (coordinatesArray.length != 0)
-        feature["coordinates_p"] = coordinatesArray;
+        feature["coordinates_p"] = coordinatesArray;*/
 
-
-
-      for (var j = 0; j < feature["relations"].length; j++) {
-        for (var prop in feature["relations"][j]) {
-          if (prop === "reltags") {
-            for (var prop2 in feature["relations"][j]["reltags"]) {
-              feature[prop2] = feature["relations"][j]["reltags"][prop2];
-            }
-          } else {
-            feature[prop] = feature["relations"][j][prop];
-          }
-        }
-      }
-      delete feature["relations"];
+      for (var j = 0; j < feature["relations"].length; j++){
+         for (var prop in feature["relations"][j]){
+           if (prop === "reltags"){
+             for (var prop2 in feature["relations"][j]["reltags"]){
+               feature[prop2 + "_s"] = feature["relations"][j]["reltags"][prop2] ;
+             }
+           }
+           else{
+             feature[prop + "_s"] = feature["relations"][j][prop];
+           }   
+         }
+       }
+       delete feature["relations"];
 
 
 
