@@ -8,8 +8,25 @@
 IFS=$'\n\t'
 
 adduser() {
-coord=$(cat $bestand | grep -e ".[0-9][0-9]*\."*) 
-echo $coord
+
+#coord=$(cat $bestand | grep -e ".[0-9][0-9]*\."*) 
+
+aantal=$(cat $bestand | grep -c ".[0-9][0-9]*\."*)
+
+
+if ! (($aantal % 4));then
+	#echo "Deelbaar door 4"
+	echo "test"
+fi
+
+if ! (($aantal % 6)); then
+	#echo "Deelbaar door 6"
+	poly=$(cat $bestand | grep ".[0-9][0-9]*\."* | head -6)
+	end=$(echo $poly | tr -s " " | cut -d ' ' -f 1,2 )
+	
+	echo $poly $end > belgium1.poly 
+	 
+fi
 }
 
 
