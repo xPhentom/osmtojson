@@ -13,15 +13,16 @@ var South; // MinLat
 var East; // MaxLon
 var West; // MinLon
 
-var osmconvert = false;
-var osmosis = false;
-var osmtogeojson = false;
+var osmconvert = true;
+var osmosis = true;
+var osmtogeojson = true;
 
-CheckApplications();
-Startup();
+// CheckApplications();
+
 
 //Checking whether or not all necessary applications are available
 function CheckApplications() {
+
     cmd.get(
         'osmconvert -h',
         function (data) {
@@ -30,7 +31,8 @@ function CheckApplications() {
             } else {
                 console.log("Looks like osmconvert isn't installed yet")
             }
-        })
+            osmconvert = true;
+        });
     cmd.get(
         'osmosis',
         function (data) {
@@ -39,7 +41,7 @@ function CheckApplications() {
             } else {
                 console.log("Looks like osmosis isn't installed yet")
             }
-        })
+        });
     cmd.get(
         'osmtogeojson --help',
         function (data) {
@@ -48,28 +50,24 @@ function CheckApplications() {
             } else {
                 console.log("Looks like osmtogeojson isn't installed yet")
             }
-        })
+        });
+
+
+
 }
 
+Startup();
 
 // Main function
 function Startup() {
 
+    console.log("Starting...");
+    console.log(osmconvert + "," + osmosis + "," + osmtogeojson);
     if (osmconvert && osmosis && osmtogeojson) {
+        console.log("All applications are installed, let's go");
         Setup();
         readosmpbffolder();
-
-        fs.readdir("osm", (err, files) => {
-            if (files.length == 0) {
-                console.log("Looks like there are no osm files in the osm folder");
-                return;
-            }
-            files.forEach(filename => {
-                CreateBoundaries(filename);
-                DivideOSM(filename);
-            });
-        })
-
+        OSMDivider();
         ConvertOsmToGeojson();
     }
 }
@@ -99,7 +97,18 @@ function readosmpbffolder() {
     })
 };
 
-
+function OSMDivider() {
+    fs.readdir("osm", (err, files) => {
+        if (files.length == 0) {
+            console.log("Looks like there are no osm files in the osm folder");
+            return;
+        }
+        files.forEach(filename => {
+            CreateBoundaries(filename);
+            DivideOSM(filename);
+        });
+    })
+}
 
 // Retrieving Data
 
