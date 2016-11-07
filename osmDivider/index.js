@@ -13,48 +13,65 @@ var South; // MinLat
 var East; // MaxLon
 var West; // MinLon
 
+var osmconvert = false;
+var osmosis = false;
+var osmtogeojson = false;
 
-CheckOsmConverter();
+CheckApplications();
+Startup();
 
-//TODO: Check if osmtogeojson exists, make code more readable
-// Main function
-function CheckOsmConverter() {
+//Checking whether or not all necessary applications are available
+function CheckApplications() {
     cmd.get(
         'osmconvert -h',
         function (data) {
-            if (data.indexOf('not recognized') != -1) {
-                console.log("It seems like osmconvert isn't installed yet");
-                return;
+            if (data.indexOf('not recognized') == -1) {
+                osmconvert = true;
             } else {
-                cmd.get(
-                    'osmosis',
-                    function (data) {
-                        if (data.indexOf('not recognized') != -1) {
-                            console.log("It seems like osmosis isn't installed yet");
-                            return;
-                        } else {
-                            Setup();
-                            readosmpbffolder();
-
-                            fs.readdir("osm", (err, files) => {
-                                if (files.length == 0) {
-                                    console.log("Looks like there are no osm files in the osm folder");
-                                    return;
-                                }
-                                files.forEach(filename => {
-                                    CreateBoundaries(filename);
-                                    DivideOSM(filename);
-                                });
-                            })
-
-                            ConvertOsmToGeojson();
-
-                        }
-                    }
-                )
+                console.log("Looks like osmconvert isn't installed yet")
             }
-        }
-    );
+        })
+    cmd.get(
+        'osmosis',
+        function (data) {
+            if (data.indexOf('not recognized') == -1) {
+                osmconvert = true;
+            } else {
+                console.log("Looks like osmosis isn't installed yet")
+            }
+        })
+    cmd.get(
+        'osmtogeojson --help',
+        function (data) {
+            if (data.indexOf('not recognized') == -1) {
+                osmconvert = true;
+            } else {
+                console.log("Looks like osmtogeojson isn't installed yet")
+            }
+        })
+}
+
+
+// Main function
+function Startup() {
+
+    if (osmconvert && osmosis && osmtogeojson) {
+        Setup();
+        readosmpbffolder();
+
+        fs.readdir("osm", (err, files) => {
+            if (files.length == 0) {
+                console.log("Looks like there are no osm files in the osm folder");
+                return;
+            }
+            files.forEach(filename => {
+                CreateBoundaries(filename);
+                DivideOSM(filename);
+            });
+        })
+
+        ConvertOsmToGeojson();
+    }
 }
 
 
@@ -194,7 +211,7 @@ function ConvertOsmToGeojson() {
         files.forEach(filename => {
             var geojsonfilename = filename.replace('osm', 'geojson');
             console.log("converting " + filename + " to " + geojsonfilename);
-            execSync("osmtogeojson osmparts/" + filename  + " geojson/" + geojsonfilename);
+            execSync("osmtogeojson osmparts/" + filename + " geojson/" + geojsonfilename);
         });
     })
 
