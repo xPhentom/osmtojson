@@ -1,0 +1,13 @@
+timestamp min: 2005-07-05T04:36:12Z
+timestamp max: 2016-10-08T18:53:28Z
+lon min: -5.6520170
+lon max: 7.2824670
+lat min: 49.4352868
+lat max: 53.9447170
+nodes: 2875416
+ways: 0
+relations: 0
+node id min: 123295
+node id max: 1045947828
+keyval pairs max: 32
+keyval pairs max object: node 60287767
