@@ -16,36 +16,80 @@ var West; // MinLon
 
 CheckOsmConverter();
 
+//TODO: Check if osmtogeojson exists, make code more readable
 // Main function
 function CheckOsmConverter() {
     cmd.get(
-        'osmconvert -v',
+        'osmconvert -h',
         function (data) {
             if (data.indexOf('not recognized') != -1) {
                 console.log("It seems like osmconvert isn't installed yet");
                 return;
             } else {
-                Setup();
-                CreateBoundaries();
-                DivideOSM();
+                cmd.get(
+                    'osmosis',
+                    function (data) {
+                        if (data.indexOf('not recognized') != -1) {
+                            console.log("It seems like osmosis isn't installed yet");
+                            return;
+                        } else {
+                            Setup();
+                            readosmpbffolder();
+
+                            fs.readdir("osm", (err, files) => {
+                                if (files.length == 0) {
+                                    console.log("Looks like there are no osm files in the osm folder");
+                                    return;
+                                }
+                                files.forEach(filename => {
+                                    CreateBoundaries(filename);
+                                    DivideOSM(filename);
+                                    
+                                });
+                            })
+                        }
+                    }
+                )
             }
         }
     );
 }
 
+
 //Setting up essential parts
 function Setup() {
     console.log("Creating osmParts folder");
-    cmd.run('mkdir osmParts');
+    cmd.run('mkdir osmparts');
+    cmd.run('mkdir osm');
 }
+
+
+//Read the osm.pbf folder
+//Convert osm.pbf to osm files and place them into osm folder
+function readosmpbffolder() {
+    fs.readdir("osmpbf", (err, files) => {
+        if (files.length == 0) {
+            console.log("Looks like there are no osm.pbf files in the osmpbf folder");
+            return;
+        }
+        files.forEach(filename => {
+            console.log(filename);
+            var osmfilename = filename.replace('osm.pbf', 'osm');
+            console.log("converting " + filename + " to " + osmfilename);
+            execSync("osmosis --read-pbf osmpbf/" + filename + " --write-xml osm/" + osmfilename);
+        });
+    })
+};
+
+
 
 // Retrieving Data
 
-function CreateBoundaries() {
+function CreateBoundaries(Filename) {
 
     // Setting startdata 
 
-    RetrieveCoordinates();
+    RetrieveCoordinates(Filename);
 
     console.log("Startwaarden: " + " North: " + North + ", South: " + South + ", East: " + East + ", West: " + West);
 
@@ -90,8 +134,8 @@ function CreateBoundaries() {
 
 }
 
-function RetrieveCoordinates() {
-    execSync('osmconvert belgium-latest.osm --out-statistics > statistics.txt');
+function RetrieveCoordinates(Filename) {
+    execSync('osmconvert osm/' + Filename + ' --out-statistics > statistics.txt');
 
     var array = fs.readFileSync("statistics.txt").toString().split('\n');
 
@@ -99,16 +143,16 @@ function RetrieveCoordinates() {
 
         if (array[i].indexOf("lon min") > -1) {
             West = parseFloat(array[i].substr(array[i].indexOf(":") + 1));
-            
+
         } else if (array[i].indexOf("lon max") > -1) {
             East = parseFloat(array[i].substr(array[i].indexOf(":") + 1));
-           
+
         } else if (array[i].indexOf("lat min") > -1) {
             South = parseFloat(array[i].substr(array[i].indexOf(":") + 1));
-            
+
         } else if (array[i].indexOf("lat max") > -1) {
             North = parseFloat(array[i].substr(array[i].indexOf(":") + 1));
-            
+
         }
     }
 }
@@ -119,7 +163,7 @@ function RetrieveCoordinates() {
 //Function to divide the original OSM file into multiple, smaller OSM files and stores it in the folder 'osmParts'
 
 //Example osmconvert command: osmconvert belgium-latest.osm -b=2.54,49.49,3.09,49.78 -o=nuernberg.osm
-function DivideOSM() {
+function DivideOSM(Filename) {
 
     var filecounter = 0;
 
@@ -130,9 +174,9 @@ function DivideOSM() {
             var South = verticaldivision[i + 1];
             var East = horizontaldivision[j + 1];
 
-            console.log('osmconvert belgium-latest.osm -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
+            console.log('osmconvert osm/' + Filename  + ' -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
 
-            execSync('osmconvert belgium-latest.osm -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
+            execSync('osmconvert osm/' + Filename  + ' -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
 
             filecounter++;
 

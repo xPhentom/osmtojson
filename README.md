@@ -1,0 +1,1 @@
+Create a folder osm.pbf. In here you place every osm.pbf file you want to upload.
