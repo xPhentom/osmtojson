@@ -44,9 +44,11 @@ function CheckOsmConverter() {
                                 files.forEach(filename => {
                                     CreateBoundaries(filename);
                                     DivideOSM(filename);
-                                    
                                 });
                             })
+
+                            ConvertOsmToGeojson();
+
                         }
                     }
                 )
@@ -58,9 +60,8 @@ function CheckOsmConverter() {
 
 //Setting up essential parts
 function Setup() {
-    console.log("Creating osmParts folder");
-    cmd.run('mkdir osmparts');
-    cmd.run('mkdir osm');
+    console.log("Creating all necessary folders");
+    cmd.run('mkdir osm osmparts geojson');
 }
 
 
@@ -174,12 +175,27 @@ function DivideOSM(Filename) {
             var South = verticaldivision[i + 1];
             var East = horizontaldivision[j + 1];
 
-            console.log('osmconvert osm/' + Filename  + ' -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
+            console.log('osmconvert osm/' + Filename + ' -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
 
-            execSync('osmconvert osm/' + Filename  + ' -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
+            execSync('osmconvert osm/' + Filename + ' -b=' + North + ',' + West + ',' + South + ',' + East + ' -o=osmParts/belgium' + filecounter + '.osm --verbose');
 
             filecounter++;
 
         }
     }
 }
+
+function ConvertOsmToGeojson() {
+    fs.readdir("osmparts", (err, files) => {
+        if (files.length == 0) {
+            console.log("Looks like there are no osm files in the osmparts folder");
+            return;
+        }
+        files.forEach(filename => {
+            var geojsonfilename = filename.replace('osm', 'geojson');
+            console.log("converting " + filename + " to " + geojsonfilename);
+            execSync("osmtogeojson osmparts/" + filename  + " geojson/" + geojsonfilename);
+        });
+    })
+
+};
