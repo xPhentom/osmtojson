@@ -594,10 +594,10 @@ osmtogeojson = function (data, options) {
 
       var feature = { //AANGEPAST
         "type_s": "Feature, pois[i]",
-        "id_s": pois[i].type + "/" + pois[i].id,
+        "id": pois[i].type + "/" + pois[i].id,
 
         "type2_s": pois[i].type,
-        "id2_s": pois[i].id,
+        //"id_i": pois[i].id,
         "tags": pois[i].tags || {},
         "relations": relsmap["node"][pois[i].id] || [],
         //"meta": build_meta_information(pois[i]), //AANGEPAST Opgeroepen
@@ -911,10 +911,10 @@ osmtogeojson = function (data, options) {
           // mp parsed, now construct the geoJSON //AANGEPAST
           var feature = {
             "type_s": "Feature, tag_object",
-            "id_s": tag_object.type + "/" + mp_id,
+            "id": tag_object.type + "/" + mp_id,
 
             "type2_s": tag_object.type,
-            "id2_s": mp_id,
+            //"id": mp_id,
             "tags": tag_object.tags || {},
             "relations": relsmap[tag_object.type][tag_object.id] || [],
             //"meta": build_meta_information(tag_object),
@@ -1034,10 +1034,10 @@ osmtogeojson = function (data, options) {
 
       var feature = { //AANGEPAST
         "type_s": "Features, ways",
-        "id_s": ways[i].type + "/" + ways[i].id,
+        "id": ways[i].type + "/" + ways[i].id,
 
         "type2_s": ways[i].type,
-        "id_s2": ways[i].id,
+        //"id": ways[i].id,
         "tags": ways[i].tags || {},
         "relations": relsmap["way"][ways[i].id] || [],
         //"meta": build_meta_information(ways[i]),

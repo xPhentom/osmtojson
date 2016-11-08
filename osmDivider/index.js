@@ -1,6 +1,7 @@
 var cmd = require('node-cmd');
 var fs = require('fs');
 var async = require('async');
+var solr = require('solr-client');
 
 const execSync = require('child_process').execSync;
 
@@ -69,6 +70,7 @@ function Startup() {
         readosmpbffolder();
         OSMDivider();
         ConvertOsmToGeojson();
+        //SendToSolr(); TODO: still needs to be tested
     }
 }
 
@@ -83,6 +85,9 @@ function Setup() {
 //Read the osm.pbf folder
 //Convert osm.pbf to osm files and place them into osm folder
 function readosmpbffolder() {
+
+    console.log("Reading osmpbf folder...");
+
     fs.readdir("osmpbf", (err, files) => {
         if (files.length == 0) {
             console.log("Looks like there are no osm.pbf files in the osmpbf folder");
@@ -156,14 +161,16 @@ function CreateBoundaries(Filename) {
     }
 
     console.log("Verticale verdeling: " + verticaldivision);
-
-
-
 }
 
+
+//Retrieving coordinates from osm.pbf file
 function RetrieveCoordinates(Filename) {
+
+    // osmconvert --out-statistics return the north, east, south and west values of the osm.pbf file
     execSync('osmconvert osm/' + Filename + ' --out-statistics > statistics.txt');
 
+    //To make the script system independant, we quickly create a small file from which we will get the coordinates
     var array = fs.readFileSync("statistics.txt").toString().split('\n');
 
     for (var i = 0; i < array.length; i++) {
@@ -194,6 +201,7 @@ function DivideOSM(Filename) {
 
     var filecounter = 0;
 
+    //Giving the variables the right value
     for (i = 0; i < verticaldivision.length - 1; i++) {
         for (j = 0; j < horizontaldivision.length - 1; j++) {
             var North = verticaldivision[i];
@@ -211,6 +219,8 @@ function DivideOSM(Filename) {
     }
 }
 
+
+//Converting Osm files to Geojson and placing them into the folder geojson
 function ConvertOsmToGeojson() {
     fs.readdir("osmparts", (err, files) => {
         if (files.length == 0) {
@@ -220,8 +230,33 @@ function ConvertOsmToGeojson() {
         files.forEach(filename => {
             var geojsonfilename = filename.replace('osm', 'geojson');
             console.log("converting " + filename + " to " + geojsonfilename);
-            execSync("osmtogeojson osmparts/" + filename + " geojson/" + geojsonfilename);
+            execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
+        });
+    })
+};
+
+
+//Upload all the files found in the geojson folder
+function SendToSolr() {
+    var client = solr.createClient();
+    client = solr.createClient();
+
+    fs.readdir("geojson", (err, files) => {
+        if (files.length == 0) {
+            console.log("Looks like there are no geojson files in the osmparts folder");
+            return;
+        }
+        files.forEach(filename => {
+            console.log("Uploading " + filename + " to Solr");
+            var jsontext = fs.readFileSync("geojson/" + filename).toString();;
+            client.add(jsontext, function (err, obj) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('Solr response:', obj);
+                }
+            })
         });
     })
 
-};
+}
