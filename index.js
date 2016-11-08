@@ -588,6 +588,18 @@ osmtogeojson = function (data, options) {
 
       for (var prop in pois[i].tags) { //Zelf toegevoegd
         pois[i].tags[prop + "_s"] = pois[i].tags[prop]
+
+        for (name in pois[i].tags) {
+          if (name.indexOf("name:") != -1) {
+            var langName = [];
+            var langValue = [];
+            langName.push(name.substr(name.indexOf(":") + 1));
+            langValue.push(pois[i].tags[name]);
+            pois[i].tags["languagename_s"] = langName;
+            pois[i].tags["languagevalue_s"] = langValue;
+            delete pois[i].tags[name];
+          }
+        }
         delete pois[i].tags[prop];
       }
 
@@ -608,7 +620,7 @@ osmtogeojson = function (data, options) {
         "uid_i": pois[i].uid,
 
         "type3_s": "Point",
-        "coordinates": [ pois[i].lon + ',' + pois[i].lat ], //bewerkt
+        "coordinates": [pois[i].lon + ',' + pois[i].lat], //bewerkt
 
       };
 
@@ -904,7 +916,18 @@ osmtogeojson = function (data, options) {
           }
 
           for (var prop in tag_object.tags) { //Zelf toegevoegd
-            tag_object.tags[prop + "_s"] = tag_object.tags[prop]
+            tag_object.tags[prop + "_s"] = tag_object.tags[prop];
+            for (name in tag_object.tags) {
+              if (name.indexOf("name:") != -1) {
+                var langName = [];
+                var langValue = [];
+                langName.push(name.substr(name.indexOf(":") + 1));
+                langValue.push(tag_object.tags[name]);
+                tag_object.tags["languagename_s"] = langName;
+                tag_object.tags["languagevalue_s"] = langValue;
+                delete tag_object.tags[name];
+              }
+            }
             delete tag_object.tags[prop];
           }
 
@@ -963,19 +986,18 @@ osmtogeojson = function (data, options) {
             feature["coordinates_p"] = coordinatesArray;*/
 
 
-          for (var j = 0; j < feature["relations"].length; j++){
-                  for (var prop in feature["relations"][j]){
-                    if (prop === "reltags"){
-                      for (var prop2 in feature["relations"][j]["reltags"]){
-                        feature[prop2 + "_s"] = feature["relations"][j]["reltags"][prop2] ;
-                      }
-                    }
-                    else{
-                      feature[prop + "_s"] = feature["relations"][j][prop];
-                    }   
-                  }
+          for (var j = 0; j < feature["relations"].length; j++) {
+            for (var prop in feature["relations"][j]) {
+              if (prop === "reltags") {
+                for (var prop2 in feature["relations"][j]["reltags"]) {
+                  feature[prop2 + "_s"] = feature["relations"][j]["reltags"][prop2];
                 }
-                delete feature["relations"];
+              } else {
+                feature[prop + "_s"] = feature["relations"][j][prop];
+              }
+            }
+          }
+          delete feature["relations"];
 
 
           if (is_tainted) {
@@ -1027,8 +1049,22 @@ osmtogeojson = function (data, options) {
         coords = [coords];
       }
 
+
       for (var prop in ways[i].tags) { //elf toegevoegd, verandert de naam van het veld naar [naam]_s
         ways[i].tags[prop + "_s"] = ways[i].tags[prop];
+        for (name in ways[i].tags) {
+          if (name.indexOf("name:") != -1) {
+
+            var langName = [];
+            var langValue = [];
+
+            langName.push(name.substr(name.indexOf(":") + 1));
+            langValue.push(ways[i].tags[name]);
+            ways[i].tags["languagename_s"] = langName;
+            ways[i].tags["languagevalue_s"] = langValue;
+            delete ways[i].tags[name];
+          }
+        }
         delete ways[i].tags[prop];
       }
 
@@ -1054,6 +1090,7 @@ osmtogeojson = function (data, options) {
 
       for (var prop in ways[i].tags) { //Zelf toegevoegd, haalt alles uit tags en zet deze dan in de main tree. 'delete feature.tags' zorgt ervoor dat de originele tags verwijdert worden. 
         feature[prop] = ways[i].tags[prop];
+
         delete feature.tags;
       }
 
@@ -1081,19 +1118,18 @@ osmtogeojson = function (data, options) {
       if (coordinatesArray.length != 0)
         feature["coordinates_p"] = coordinatesArray;*/
 
-      for (var j = 0; j < feature["relations"].length; j++){
-         for (var prop in feature["relations"][j]){
-           if (prop === "reltags"){
-             for (var prop2 in feature["relations"][j]["reltags"]){
-               feature[prop2 + "_s"] = feature["relations"][j]["reltags"][prop2] ;
-             }
-           }
-           else{
-             feature[prop + "_s"] = feature["relations"][j][prop];
-           }   
-         }
-       }
-       delete feature["relations"];
+      for (var j = 0; j < feature["relations"].length; j++) {
+        for (var prop in feature["relations"][j]) {
+          if (prop === "reltags") {
+            for (var prop2 in feature["relations"][j]["reltags"]) {
+              feature[prop2 + "_s"] = feature["relations"][j]["reltags"][prop2];
+            }
+          } else {
+            feature[prop + "_s"] = feature["relations"][j][prop];
+          }
+        }
+      }
+      delete feature["relations"];
 
 
 
