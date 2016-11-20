@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 timestamp min: 2005-06-23T13:05:21Z
 timestamp max: 2016-10-08T19:25:08Z
 lon min: -20.0714330
@@ -19,3 +20,26 @@ noderefs max: 1886
 noderefs max object: way 118294776
 relrefs max: 6651
 relrefs max object: relation 2795128
+=======
+timestamp min: 2005-07-05T04:36:12Z
+timestamp max: 2016-10-08T19:26:42Z
+lon min: -5.6520170
+lon max: 7.2824670
+lat min: 49.4352868
+lat max: 58.1845499
+nodes: 26142484
+ways: 3868903
+relations: 52067
+node id min: 123295
+node id max: 4438150271
+way id min: 75146
+way id max: 446571523
+relation id min: 566
+relation id max: 6635670
+keyval pairs max: 322
+keyval pairs max object: relation 52411
+noderefs max: 2000
+noderefs max object: way 240663119
+relrefs max: 3536
+relrefs max object: relation 5936748
+>>>>>>> 58255216af1ad5bdcf29f153059786f50b3ce265
