@@ -158,7 +158,7 @@ function CreateBoundaries(Filename) {
         startmax_lat += heightpart;
     }
 
-    console.log("Horizontale verdeling: " + horizontaldivision);
+    //console.log("Horizontale verdeling: " + horizontaldivision);
 
     // dividing country from min_lon to max_lon
 
@@ -174,7 +174,7 @@ function CreateBoundaries(Filename) {
         startmax_lon += widthpart;
     }
 
-    console.log("Verticale verdeling: " + verticaldivision);
+    //console.log("Verticale verdeling: " + verticaldivision);
 
     DivideOSM(Filename, max_lat, min_lat, max_lon, min_lon);
 
@@ -223,19 +223,25 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 
     var filecounter = 0;
 
-    if (verticaldivision.length == 1) {
-        console.log("This country is too small, using boundaries instead");
-        console.log('osmconvert osmpbf/' + Filename + ' -b=' + _maxlat + ',' + _minlon + ',' + _minlat + ',' + _maxlon + ' -o=osmparts/' + resultingfilename + '.osm --verbose');
-        execSync('osmosis --read-pbf file=osmpbf/' + Filename + ' --write-xml osmparts/' + resultingfilename + '.osm');
-    } else {
-
-        //Giving the variables the right value
-	var bar = new ProgressBar ('Converting to osm [:bar] :percent (:current / :total)', {
-		complete: '=',
-		incomplete: ' ',
-		total: verticaldivision.length + horizontaldivision.length
+    var bar = new ProgressBar ('Converting to osm [:bar] :percent (:current / :total)', {
+	    complete: '=',
+	    incomplete: ' ',
+	    total: verticaldivision.length + horizontaldivision.length
 	});
 
+    if (verticaldivision.length == 1) {
+        //console.log("This country is too small, using boundaries instead");
+        //console.log('osmconvert osmpbf/' + Filename + ' -b=' + _maxlat + ',' + _minlon + ',' + _minlat + ',' + _maxlon + ' -o=osmparts/' + resultingfilename + '.osm --verbose');
+        execSync('osmosis --read-pbf file=osmpbf/' + Filename + ' --write-xml osmparts/' + resultingfilename + '.osm');
+    	console.log("Filename: " + Filename);
+	bar.tick();
+		if (bar.complete) {
+			console.log("Complete");
+		}
+        } else {
+
+        //Giving the variables the right value
+	console.log("Country: " + resultingfilename);
     for (i = 0; i < verticaldivision.length - 1; i++) {
         for (j = 0; j < horizontaldivision.length - 1; j++) {
             var min_lon = verticaldivision[i];
@@ -244,12 +250,12 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
             var max_lat = horizontaldivision[j + 1];
 
 	    //console.log('osmosis --read-pbf file=osmpbf/' + Filename  + ' --bounding-box top=' + min_lat  + ' left=' + max_lon + ' bottom=' + max_lat + ' right=' + min_lon + ' --write-xml osmparts/' + resultingfilename + filecounter + '.osm');
-            console.log('osmconvert osmpbf/' + Filename + ' -b=' + min_lon + ',' + min_lat + ',' + max_lon + ',' + max_lat + ' -o=osmparts/' + resultingfilename + filecounter + '.osm --drop-broken-refs --verbose');
-	    console.log("Dit is de filename " + Filename);
+            //console.log('osmconvert osmpbf/' + Filename + ' -b=' + min_lon + ',' + min_lat + ',' + max_lon + ',' + max_lat + ' -o=osmparts/' + resultingfilename + filecounter + '.osm --drop-broken-refs --verbose');
+	    //console.log("Dit is de filename " + Filename);
 	    //execSync('osmosis --read-pbf file=osmpbf/' + Filename  + ' --bounding-box top=' + min_lat  + ' left=' + min_lon + ' bottom=' + max_lat + ' right=' + max_lon + ' --write-xml osmparts/' + resultingfilename + filecounter + '.osm' );           
             execSync('osmconvert osmpbf/' + Filename + ' -b=' + min_lon + ',' + min_lat + ',' + max_lon + ',' + max_lat + ' --add-bbox-tags -o=osmparts/' + resultingfilename + filecounter + '.osm');
-            console.log(resultingfilename);
-
+            //console.log(resultingfilename);
+	    
                 bar.tick();
                 if (bar.complete){
                     console.log("Complete");
