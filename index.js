@@ -1088,12 +1088,18 @@ osmtogeojson = function (data, options) {
         "coordinates": coords,
       }
 
+      
       for (var prop in ways[i].tags) { //Zelf toegevoegd, haalt alles uit tags en zet deze dan in de main tree. 'delete feature.tags' zorgt ervoor dat de originele tags verwijdert worden. 
         feature[prop] = ways[i].tags[prop];
 
         delete feature.tags;
       }
 
+      for (var features in feature){
+          console.log(features);
+          delete feature;
+          delete type;
+        }
 
       //Deserialize array coordinates
       /*var coordinatesArray = [];
