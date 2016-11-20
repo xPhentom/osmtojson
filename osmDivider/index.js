@@ -97,10 +97,10 @@ function readosmpbffolder() {
             return;
         }
 
-        console.log("The next files are found");
+        //console.log("The next files are found");
 
         files.forEach(filename => {
-            console.log(filename);
+            //console.log(filename);
             resultingfilename = filename.replace('-latest.osm.pbf', '');
             CreateBoundaries(filename);
         });
@@ -135,7 +135,7 @@ function CreateBoundaries(Filename) {
 	// 	max_lon = 15.56; //right
 
 
-    console.log("Starting values: " + " max_lat: " + max_lat + ", min_lat: " + min_lat + ", max_lon: " + max_lon + ", min_lon: " + min_lon);
+    //console.log("Starting values: " + " max_lat: " + max_lat + ", min_lat: " + min_lat + ", max_lon: " + max_lon + ", min_lon: " + min_lon);
 
     var height = max_lat - min_lat;
     var width = max_lon - min_lon;
@@ -177,9 +177,11 @@ function CreateBoundaries(Filename) {
     //console.log("Verticale verdeling: " + verticaldivision);
 
     DivideOSM(Filename, max_lat, min_lat, max_lon, min_lon);
-
-    ConvertOsmToGeojson();
-
+	console.log("Converting to OSM completed.");
+    //ConvertOsmToGeojson();
+	//console.log("Converting to GeoJSON completed.");
+    //PostToSolR();
+	//console.log("Posting to SolR completed.");
 }
 
 
@@ -226,17 +228,18 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
     var bar = new ProgressBar ('Converting to osm [:bar] :percent (:current / :total)', {
 	    complete: '=',
 	    incomplete: ' ',
-	    total: verticaldivision.length + horizontaldivision.length
+	    total: verticaldivision.length + horizontaldivision.length + 1
 	});
 
     if (verticaldivision.length == 1) {
         //console.log("This country is too small, using boundaries instead");
         //console.log('osmconvert osmpbf/' + Filename + ' -b=' + _maxlat + ',' + _minlon + ',' + _minlat + ',' + _maxlon + ' -o=osmparts/' + resultingfilename + '.osm --verbose');
-        execSync('osmosis --read-pbf file=osmpbf/' + Filename + ' --write-xml osmparts/' + resultingfilename + '.osm');
-    	console.log("Filename: " + Filename);
+        execSync('osmosis -q --read-pbf file=osmpbf/' + Filename + ' --write-xml osmparts/' + resultingfilename + '.osm');
+    	console.log("Country: " + resultingfilename);
+	bar.total = 1;
 	bar.tick();
 		if (bar.complete) {
-			console.log("Complete");
+		 //console.log("Complete");
 		}
         } else {
 
@@ -258,7 +261,7 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 	    
                 bar.tick();
                 if (bar.complete){
-                    console.log("Complete");
+                    //console.log("Complete");
             }
 	filecounter++;
 	}
@@ -266,7 +269,7 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
     }
     verticaldivision = [];
     horizontaldivision = [];
-
+   
 }
 
 
@@ -279,7 +282,7 @@ function ConvertOsmToGeojson() {
         }
         files.forEach(filename => {
             var geojsonfilename = filename.replace('osm', 'geojson');
-            console.log("converting " + filename + " to " + geojsonfilename);
+            //console.log("converting " + filename + " to " + geojsonfilename);
             execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
         });
         return;
