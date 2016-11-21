@@ -32,7 +32,7 @@ function CheckApplications() {
             if (data.indexOf('not recognized') == -1) {
                 osmconvert = true;
             } else {
-                console.log("Looks like osmconvert isn't installed yet")
+                console.log("Looks like osmconvert isn't installed yet");
             }
             osmconvert = true;
         });
@@ -42,7 +42,7 @@ function CheckApplications() {
             if (data.indexOf('not recognized') == -1) {
                 osmconvert = true;
             } else {
-                console.log("Looks like osmosis isn't installed yet")
+                console.log("Looks like osmosis isn't installed yet");
             }
         });
     cmd.get(
@@ -51,7 +51,7 @@ function CheckApplications() {
             if (data.indexOf('not recognized') == -1) {
                 osmconvert = true;
             } else {
-                console.log("Looks like osmtogeojson isn't installed yet")
+                console.log("Looks like osmtogeojson isn't installed yet");
             }
         });
 
@@ -92,7 +92,7 @@ function readosmpbffolder() {
     console.log("Reading osmpbf folder...");
 
     fs.readdir("osmpbf", (err, files) => {
-        if (files.length == 0) {
+        if (files.length === 0) {
             console.log("Looks like there are no osm.pbf files in the osmpbf folder");
             return;
         }
@@ -104,9 +104,8 @@ function readosmpbffolder() {
             resultingfilename = filename.replace('-latest.osm.pbf', '');
             CreateBoundaries(filename);
         });
-    })
-
-};
+    });
+}
 
 /*function OSMDivider() {
     fs.readdir("osm", (err, files) => {
@@ -276,7 +275,7 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 //Converting Osm files to Geojson and placing them into the folder geojson
 function ConvertOsmToGeojson() {
     fs.readdir("osmparts", (err, files) => {
-        if (files.length == 0) {
+        if (files.length === 0) {
             console.log("Looks like there are no osm files in the osmparts folder");
             return;
         }
@@ -284,12 +283,12 @@ function ConvertOsmToGeojson() {
             var geojsonfilename = filename.replace('osm', 'geojson');
             //console.log("converting " + filename + " to " + geojsonfilename);
             execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
-            execSync("head -n -8 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
+            execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
             execSync("echo ']' >> geojson/" + geojsonfilename);
         });
         return;
-    })
-};
+    });
+}
 
 
 //Upload all the files found in the geojson folder
@@ -298,21 +297,21 @@ function SendToSolr() {
     client = solr.createClient();
 
     fs.readdir("geojson", (err, files) => {
-        if (files.length == 0) {
+        if (files.length === 0) {
             console.log("Looks like there are no geojson files in the osmparts folder");
             return;
         }
         files.forEach(filename => {
             console.log("Uploading " + filename + " to Solr");
-            var jsontext = fs.readFileSync("geojson/" + filename).toString();;
+            var jsontext = fs.readFileSync("geojson/" + filename).toString();
             client.add(jsontext, function (err, obj) {
                 if (err) {
                     console.log(err);
                 } else {
                     console.log('Solr response:', obj);
                 }
-            })
+            });
         });
-    })
+    });
 
 }
