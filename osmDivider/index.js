@@ -277,12 +277,15 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 
 //Converting Osm files to Geojson and placing them into the folder geojson
 function ConvertOsmToGeojson() {
-    console.log("test werkt");
+    console.log("Reading osmparts folder...");
+    
     fs.readdir("osmparts", (err, files) => {
         if (files.length === 0) {
             console.log("Looks like there are no osm files in the osmparts folder");
             return;
         }
+	console.log("TEST");
+
         files.forEach(filename => {
             var geojsonfilename = filename.replace('osm', 'json');
             //console.log("converting " + filename + " to " + geojsonfilename);
@@ -291,9 +294,11 @@ function ConvertOsmToGeojson() {
 	    execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
             execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
             execSync("echo ']' >> geojson/" + geojsonfilename);
-            SendToSolr(geojsonfilename);
+            console.log("rm osmparts/" + filename);
+	    execSync("rm osmparts/" + filename);
+	    //SendToSolr(geojsonfilename);
         });
-        return;
+        //return;
     });
 }
 
