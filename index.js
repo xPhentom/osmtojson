@@ -1,6 +1,7 @@
 var _ = require("./lodash.custom.js");
 var rewind = require("geojson-rewind");
 
+
 // see https://wiki.openstreetmap.org/wiki/Overpass_turbo/Polygon_Features
 var polygonFeatures = {};
 require("osm-polygon-features").forEach(function (tags) {
@@ -47,6 +48,7 @@ osmtogeojson = function (data, options) {
     result = _osmXML2geoJSON(data);
   else
     result = _overpassJSON2geoJSON(data);
+    
   return result;
 
   function _overpassJSON2geoJSON(json) {
@@ -459,6 +461,9 @@ osmtogeojson = function (data, options) {
     });
     return _convert2geoJSON(nodes, ways, rels);
   }
+
+
+
 
   function _convert2geoJSON(nodes, ways, rels) {
 
@@ -1088,18 +1093,21 @@ osmtogeojson = function (data, options) {
         "coordinates": coords,
       }
 
-      
+
       for (var prop in ways[i].tags) { //Zelf toegevoegd, haalt alles uit tags en zet deze dan in de main tree. 'delete feature.tags' zorgt ervoor dat de originele tags verwijdert worden. 
         feature[prop] = ways[i].tags[prop];
 
         delete feature.tags;
       }
 
-      for (var features in feature){
-          console.log(features);
-          delete feature;
-          delete type;
-        }
+      var jsonify = JSON.stringify(feature)
+      console.log(jsonify);
+      console.log(",");
+
+
+
+
+
 
       //Deserialize array coordinates
       /*var coordinatesArray = [];
@@ -1137,7 +1145,9 @@ osmtogeojson = function (data, options) {
       }
       delete feature["relations"];
 
-
+      feature = "";
+      type = "";
+     
 
       if (ways[i].tainted) {
         if (options.verbose) console.warn('Way', ways[i].type + '/' + ways[i].id, 'is tainted');
@@ -1161,19 +1171,21 @@ osmtogeojson = function (data, options) {
     geojson.features = geojson.features.concat(geojsonlines.features);
     geojson.features = geojson.features.concat(geojsonnodes.features);
     // optionally, flatten properties
-    if (options.flatProperties) {
-      geojson.features.forEach(function (f) {
-        f = _.merge(
-          f.meta,
-          f.tags
-          // {id: f.properties.type+"/"+f.properties.id} //AANGEPAST: id: "undefined/undefined" weggehaald
-        );
-      });
-    }
+    // if (options.flatProperties) {
+    //   geojson.features.forEach(function (f) {
+    //     f = _.merge(
+    //       f.meta,
+    //       f.tags
+    //       // {id: f.properties.type+"/"+f.properties.id} //AANGEPAST: id: "undefined/undefined" weggehaald
+    //     );
+    //   });
+    // }
     // fix polygon winding
     geojson = rewind(geojson, true /*remove for geojson-rewind >0.1.0*/ );
     return geojson;
   }
+
+  
 
   function _isPolygonFeature(tags) {
     var polygonFeatures = options.polygonFeatures;
@@ -1210,3 +1222,5 @@ osmtogeojson = function (data, options) {
 osmtogeojson.toGeojson = osmtogeojson;
 
 module.exports = osmtogeojson;
+
+console.log("[");
