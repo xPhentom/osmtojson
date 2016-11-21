@@ -70,6 +70,8 @@ function Startup() {
         console.log("All applications are installed, let's go");
         Setup();
         readosmpbffolder();
+        ConvertOsmToGeojson();
+        console.log("Converting to GeoJSON completed.");
 
         //OSMDivider();
         //ConvertOsmToGeojson();
@@ -267,8 +269,8 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
         }
     }
     console.log("Converting to OSM completed.");
-    ConvertOsmToGeojson();
-    console.log("Converting to GeoJSON completed.");
+    //ConvertOsmToGeojson();
+    //console.log("Converting to GeoJSON completed.");
     verticaldivision = [];
     horizontaldivision = [];
 
@@ -292,9 +294,9 @@ function ConvertOsmToGeojson() {
             console.log(files.length);
 	    console.log("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
 	    execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
-            execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
-            execSync("echo ']' >> geojson/" + geojsonfilename);
-            console.log("rm osmparts/" + filename);
+        execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
+        execSync("echo ']' >> geojson/" + geojsonfilename);
+        console.log("rm osmparts/" + filename);
 	    execSync("rm osmparts/" + filename);
 	    //SendToSolr(geojsonfilename);
         });
