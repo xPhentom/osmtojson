@@ -176,7 +176,7 @@ function CreateBoundaries(Filename) {
     //console.log("Verticale verdeling: " + verticaldivision);
 
     DivideOSM(Filename, max_lat, min_lat, max_lon, min_lon);
-    console.log("Converting to OSM completed.");
+    //console.log("Converting to OSM completed.");
     //ConvertOsmToGeojson();
     //console.log("Converting to GeoJSON completed.");
     //PostToSolR();
@@ -266,6 +266,9 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
             }
         }
     }
+    console.log("Converting to OSM completed.");
+    ConvertOsmToGeojson();
+    console.log("Converting to GeoJSON completed.");
     verticaldivision = [];
     horizontaldivision = [];
 
@@ -274,15 +277,18 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 
 //Converting Osm files to Geojson and placing them into the folder geojson
 function ConvertOsmToGeojson() {
+    console.log("test werkt");
     fs.readdir("osmparts", (err, files) => {
         if (files.length === 0) {
             console.log("Looks like there are no osm files in the osmparts folder");
             return;
         }
         files.forEach(filename => {
-            var geojsonfilename = filename.replace('osm', 'geojson');
+            var geojsonfilename = filename.replace('osm', 'json');
             //console.log("converting " + filename + " to " + geojsonfilename);
-            execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
+            console.log(files.length);
+	    console.log("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
+	    execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
             execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
             execSync("echo ']' >> geojson/" + geojsonfilename);
         });

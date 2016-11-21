@@ -1,21 +1,21 @@
-timestamp min: 2005-06-23T13:05:21Z
-timestamp max: 2016-10-08T19:25:08Z
-lon min: -20.0714330
-lon max: 28.1097139
-lat min: 52.6914330
-lat max: 65.3056879
-nodes: 17981624
-ways: 1979593
-relations: 14773
-node id min: 115722
-node id max: 4438152073
-way id min: 2080
-way id max: 446571367
-relation id min: 174
-relation id max: 6635154
-keyval pairs max: 294
-keyval pairs max object: relation 51477
-noderefs max: 1886
-noderefs max object: way 118294776
-relrefs max: 6651
-relrefs max object: relation 2795128
+timestamp min: 2006-06-26T23:19:30Z
+timestamp max: 2016-11-12T18:54:08Z
+lon min: 32.0227581
+lon max: 34.8553182
+lat min: 34.3597544
+lat max: 36.7982502
+nodes: 1094783
+ways: 107814
+relations: 819
+node id min: 3402632
+node id max: 4497216989
+way id min: 3990382
+way id max: 452597750
+relation id min: 68529
+relation id max: 6665170
+keyval pairs max: 247
+keyval pairs max object: node 424313406
+noderefs max: 1270
+noderefs max object: way 217955217
+relrefs max: 600
+relrefs max object: relation 2707699
