@@ -294,13 +294,13 @@ function ConvertOsmToGeojson() {
             console.log(files.length);
 	    console.log("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
 	    execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
-        execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
-        execSync("echo ']' >> geojson/" + geojsonfilename);
-        console.log("rm osmparts/" + filename);
+            //execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
+            execSync("echo ']' >> geojson/" + geojsonfilename);
+            console.log("rm osmparts/" + filename);
 	    execSync("rm osmparts/" + filename);
 	    //SendToSolr(geojsonfilename);
         });
-        //return;
+        return;
     });
 }
 
@@ -308,7 +308,7 @@ function ConvertOsmToGeojson() {
 //Upload all the files found in the geojson folder
 function SendToSolr(filename) {
     
-    console.log("../post -c CE_OSM -type application/json geojson/" + filename + " is being executed." + "\nIf this doesn't work, check the existance of the core and document.");
-    execSync("../post -c CE_OSM -type application/json geojson/" + filename);
+    console.log("/opt/solr-5.5.3/bin/post -c CE_OSM -p 8989 -type application/json geojson/" + filename + " is being executed." + "\nIf this doesn't work, check the existance of the core and document.");
+    execSync("/opt/solr-5.5.3/bin/post -c CE_OSM -p 8989 -type application/json geojson/" + filename);
 
 }
