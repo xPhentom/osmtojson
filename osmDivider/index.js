@@ -3,6 +3,7 @@ var fs = require('fs');
 var async = require('async');
 var solr = require('solr-client');
 var ProgressBar = require('progress');
+var stopwatch = require('node-stopwatch').Stopwatch;
 
 const execSync = require('child_process').execSync;
 
@@ -192,7 +193,7 @@ function RetrieveCoordinates(Filename) {
     // osmconvert --out-statistics return the north, east, south and west values of the osm.pbf file
     execSync('osmconvert osmpbf/' + Filename + ' --out-statistics > statistics.txt');
 
-    execSync('cat statistics.txt');
+    // execSync('cat statistics.txt');
 
     //To make the script system independant, we quickly create a small file from which we will get the coordinates
     var array = fs.readFileSync("statistics.txt").toString().split('\n');
@@ -221,6 +222,8 @@ function RetrieveCoordinates(Filename) {
 
 //Function to divide the original OSM file into multiple, smaller OSM files and stores it in the folder 'osmParts'
 
+var stopwatch = stopwatch.create(); //Keeps ahold of the time to create the osm files
+
 //Example osmconvert command: osmconvert belgium-latest.osm -b=2.54,49.49,3.09,49.78 -o=nuernberg.osm
 function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 
@@ -235,17 +238,21 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
     if (verticaldivision.length == 1) {
         //console.log("This country is too small, using boundaries instead");
         //console.log('osmconvert osmpbf/' + Filename + ' -b=' + _maxlat + ',' + _minlon + ',' + _minlat + ',' + _maxlon + ' -o=osmparts/' + resultingfilename + '.osm --verbose');
+        stopwatch.start();
         execSync('osmosis -q --read-pbf file=osmpbf/' + Filename + ' --write-xml osmparts/' + resultingfilename + '.osm');
         console.log("Country: " + resultingfilename);
         bar.total = 1;
+        stopwatch.stop();
         bar.tick();
         if (bar.complete) {
-            //console.log("Complete");
+            console.log("Elapsed time (HH:MM:SS) : " + stopwatch.elapsed.hours + ":" + stopwatch.elapsed.minutes + ":" + stopwatch.elapsed.seconds);
         }
     } else {
 
         //Giving the variables the right value
         console.log("Country: " + resultingfilename);
+        stopwatch.reset();
+        stopwatch.start;
         for (i = 0; i < verticaldivision.length - 1; i++) {
             for (j = 0; j < horizontaldivision.length - 1; j++) {
                 var min_lon = verticaldivision[i];
@@ -259,10 +266,10 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
                 //execSync('osmosis --read-pbf file=osmpbf/' + Filename  + ' --bounding-box top=' + min_lat  + ' left=' + min_lon + ' bottom=' + max_lat + ' right=' + max_lon + ' --write-xml osmparts/' + resultingfilename + filecounter + '.osm' );           
                 execSync('osmconvert osmpbf/' + Filename + ' -b=' + min_lon + ',' + min_lat + ',' + max_lon + ',' + max_lat + ' --add-bbox-tags -o=osmparts/' + resultingfilename + filecounter + '.osm');
                 //console.log(resultingfilename);
-
+                stopwatch.stop();
                 bar.tick();
                 if (bar.complete) {
-                    //console.log("Complete");
+                   console.log("Elapsed time (HH:MM:SS) : " + stopwatch.elapsed.hours + ":" + stopwatch.elapsed.minutes + ":" + stopwatch.elapsed.seconds);
                 }
                 filecounter++;
             }
@@ -280,25 +287,25 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 //Converting Osm files to Geojson and placing them into the folder geojson
 function ConvertOsmToGeojson() {
     console.log("Reading osmparts folder...");
-    
+
     fs.readdir("osmparts", (err, files) => {
         if (files.length === 0) {
             console.log("Looks like there are no osm files in the osmparts folder");
             return;
         }
-	console.log("TEST");
+        console.log("TEST");
 
         files.forEach(filename => {
             var geojsonfilename = filename.replace('osm', 'json');
             //console.log("converting " + filename + " to " + geojsonfilename);
             console.log(files.length);
-	    console.log("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
-	    execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
+            console.log("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
+            execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
             //execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
             execSync("echo ']' >> geojson/" + geojsonfilename);
             console.log("rm osmparts/" + filename);
-	    execSync("rm osmparts/" + filename);
-	    //SendToSolr(geojsonfilename);
+            execSync("rm osmparts/" + filename);
+            //SendToSolr(geojsonfilename);
         });
         return;
     });
@@ -307,7 +314,7 @@ function ConvertOsmToGeojson() {
 
 //Upload all the files found in the geojson folder
 function SendToSolr(filename) {
-    
+
     console.log("/opt/solr-5.5.3/bin/post -c CE_OSM -p 8989 -type application/json geojson/" + filename + " is being executed." + "\nIf this doesn't work, check the existance of the core and document.");
     execSync("/opt/solr-5.5.3/bin/post -c CE_OSM -p 8989 -type application/json geojson/" + filename);
 

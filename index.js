@@ -48,7 +48,7 @@ osmtogeojson = function (data, options) {
     result = _osmXML2geoJSON(data);
   else
     result = _overpassJSON2geoJSON(data);
-    
+
   return result;
 
   function _overpassJSON2geoJSON(json) {
@@ -1100,15 +1100,6 @@ osmtogeojson = function (data, options) {
         delete feature.tags;
       }
 
-      var jsonify = JSON.stringify(feature)
-      console.log(jsonify);
-      console.log(",");
-
-
-
-
-
-
       //Deserialize array coordinates
       /*var coordinatesArray = [];
       for (var prop in coords) {
@@ -1145,9 +1136,6 @@ osmtogeojson = function (data, options) {
       }
       delete feature["relations"];
 
-      feature = "";
-      type = "";
-     
 
       if (ways[i].tainted) {
         if (options.verbose) console.warn('Way', ways[i].type + '/' + ways[i].id, 'is tainted');
@@ -1185,7 +1173,7 @@ osmtogeojson = function (data, options) {
     return geojson;
   }
 
-  
+
 
   function _isPolygonFeature(tags) {
     var polygonFeatures = options.polygonFeatures;
