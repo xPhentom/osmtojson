@@ -309,12 +309,12 @@ function ConvertOsmToGeojson() {
         files.forEach(filename => {
             var geojsonfilename = filename.replace('osm', 'json');
             //console.log("converting " + filename + " to " + geojsonfilename);
-            console.log(files.length);
-            console.log("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
+            //console.log(files.length);
+            //console.log("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
             execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
             //execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
             execSync("echo ']' >> geojson/" + geojsonfilename);
-            console.log("rm osmparts/" + filename);
+            //console.log("rm osmparts/" + filename);
             execSync("rm osmparts/" + filename);
             //SendToSolr(geojsonfilename);
 
