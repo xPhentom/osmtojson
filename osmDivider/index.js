@@ -290,7 +290,7 @@ function DivideOSM(Filename, _maxlat, _minlat, _maxlon, _minlon) {
 function ConvertOsmToGeojson() {
     console.log("Reading osmparts folder...");
 
-    var bar = new ProgressBar('Converting to osm [:bar] :percent (:current / :total)', {
+    var bar = new ProgressBar('Converting to geojson [:bar] :percent (:current / :total)', {
         complete: '=',
         incomplete: ' ',
         total: 1
@@ -316,9 +316,10 @@ function ConvertOsmToGeojson() {
             execSync("echo ']' >> geojson/" + geojsonfilename);
             execSync("sed -i '0,/{/d;/\"type\": \"FeatureCollection\",/d;/\"features\": /d' geojson/" + geojsonfilename);
             //add characters at the beginning of each line using AWK
-            execSync("awk '{print \"[\"$0}' geojson/" + geojsonfilename);
-            execSync("sed -e :a -e '$d;N;2,3ba' -e 'P;D' geojson" + geojsonfilename);
-            //console.log("rm osmparts/" + filename);
+            execSync("sed -i -e '1i[\' geojson/" + geojsonfilename);
+            //execSync("sed -e :a -e '$d;N;2,2ba' -e 'P;D' geojson/" + geojsonfilename);
+            execSync("sed -i -e :a -e '$d;N;2,2ba' -e 'P;D' geojson/" + geojsonfilename);
+	    //console.log("rm osmparts/" + filename);
             execSync("rm osmparts/" + filename);
             //SendToSolr(geojsonfilename);
 
