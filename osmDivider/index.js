@@ -314,6 +314,10 @@ function ConvertOsmToGeojson() {
             execSync("osmtogeojson osmparts/" + filename + " > geojson/" + geojsonfilename);
             //execSync("head -n -9 geojson/" + geojsonfilename + " > geojson/" + geojsonfilename);
             execSync("echo ']' >> geojson/" + geojsonfilename);
+            execSync("sed -i '0,/{/d;/\"type\": \"FeatureCollection\",/d;/\"features\": /d' geojson/" + geojsonfilename);
+            //add characters at the beginning of each line using AWK
+            execSync("awk '{print \"[\"$0}' geojson/" + geojsonfilename);
+            execSync("sed -e :a -e '$d;N;2,3ba' -e 'P;D' geojson" + geojsonfilename);
             //console.log("rm osmparts/" + filename);
             execSync("rm osmparts/" + filename);
             //SendToSolr(geojsonfilename);
