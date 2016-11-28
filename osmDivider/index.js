@@ -321,7 +321,7 @@ function ConvertOsmToGeojson() {
             execSync("sed -i -e :a -e '$d;N;2,2ba' -e 'P;D' geojson/" + geojsonfilename);
 	    //console.log("rm osmparts/" + filename);
             execSync("rm osmparts/" + filename);
-            //SendToSolr(geojsonfilename);
+            SendToSolr(geojsonfilename);
 
             bar.tick();
             if (bar.complete) {

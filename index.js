@@ -1,6 +1,7 @@
 var _ = require("./lodash.custom.js");
 var rewind = require("geojson-rewind");
-
+//var stringify = require("wellknown");
+var wkt = require('terraformer-wkt-parser');
 
 // see https://wiki.openstreetmap.org/wiki/Overpass_turbo/Polygon_Features
 var polygonFeatures = {};
@@ -619,7 +620,7 @@ osmtogeojson = function (data, options) {
         "relations": relsmap["node"][pois[i].id] || [],
         //"meta": build_meta_information(pois[i]), //AANGEPAST Opgeroepen
         "timestamp_dt": pois[i].timestamp,
-        "version_i": pois[i].version,
+       "version_i": pois[i].version,
         "changeset_i": pois[i].changeset,
         "user_s": pois[i].user,
         "uid_i": pois[i].uid,
@@ -900,8 +901,13 @@ osmtogeojson = function (data, options) {
                 return;
               }
               return _.compact(ring.map(function (node) {
-                return node.lon + ',' + node.lat;
-              }));
+                //var co = "[" + node.lon + ',' + node.lat + "]";
+		//co = co.replace('"','[');
+		//co = co.replace('"',']');
+		//return co.replace(new RegExp('"', 'g'), '');
+		//Oorspronkelijk alleen: return node.lon + ',' + node.lat;
+              	return [+node.lon,+node.lat];
+		}));
             }));
             if (cl.length == 0) {
               if (options.verbose) console.warn('Multipolygon', mp_geometry + '/' + mp_id, 'contains an empty ring cluster');
@@ -915,11 +921,26 @@ osmtogeojson = function (data, options) {
             return false; // ignore multipolygons without coordinates
           }
           var mp_type = "MultiPolygon";
+	  var wkt_var;
           if (mp_coords.length === 1) {
             mp_type = "Polygon";
             mp_coords = mp_coords[0];
-          }
+		wkt_var = wkt.convert({"type": mp_type,
+					"coordinates": mp_coords});
+          } else {
+		wkt_var = wkt.convert({"type": mp_type,
+					"coordinates": mp_coords});
+	  }
 
+	//WKT - conversie
+	//if mp_type = "MultiPolygon" => geojson to WKT = var => feature
+/*	var wkt_var;  
+	if (mp_type == "MultiPolygon") {
+		wkt_var = wkt.convert({"type": mp_type,
+			   "coordinates": mp_coords, });
+
+	  }
+*/
           for (var prop in tag_object.tags) { //Zelf toegevoegd
             tag_object.tags[prop + "_s"] = tag_object.tags[prop];
             for (name in tag_object.tags) {
@@ -952,9 +973,10 @@ osmtogeojson = function (data, options) {
             "user_s": tag_object.user,
             "uid_i": tag_object.uid,
 
-            "type3_s": mp_type,
-            "coordinates": mp_coords,
+            //"type3__s": mp_type,
+            //"coordinates": mp_coords,
 
+	    "WKT_geo": wkt_var
             /* "geometry"   : {
                "type_s" : mp_type,
                "coordinates_geo" : mp_coords,
@@ -968,7 +990,7 @@ osmtogeojson = function (data, options) {
 
 
           //Deserialize array coordinates
-          /*var coordinatesArray = [];
+/*          var coordinatesArray = [];
           for (var prop in coords) {
             var counter = 0;
             var pushCoordinates;
@@ -986,9 +1008,9 @@ osmtogeojson = function (data, options) {
             coordinatesArray.push(pushCoordinates.toString());
             pushCoordinates = "";
           }
-          delete feature["coordinates_p"];
+          delete feature["coordinates"];
           if (coordinatesArray.length != 0)
-            feature["coordinates_p"] = coordinatesArray;*/
+            feature["coordinates"] = coordinatesArray;*/
 
 
           for (var j = 0; j < feature["relations"].length; j++) {
